@@ -31,7 +31,7 @@
 
 Summary:	A suite of data structures and routines for solution of partial differential equations
 Name:		%name
-Version:	3.18.1
+Version:	3.18.3
 Release:	1
 License:	BSD
 Group:		System/Libraries
