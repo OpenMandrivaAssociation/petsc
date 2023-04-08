@@ -1,12 +1,10 @@
-%define oname PETSc
-%define name %(echo %oname | tr [:upper:] [:lower:])
+%undefine _ld_as_needed
+%global _lto_cflags %{nil}
 
 %define	major		3
+%define libname %mklibname %{name}
 %define devname %mklibname %{name} -d
-%define libname %mklibname %{name} %major
-
-#%%define	gccinstalldir	%(LC_ALL=C %__cc --print-search-dirs | grep install | %__awk '{print $2}')
-#%%define	fincludedir 	%{gccinstalldir}finclude
+%define oldlibname %mklibname %{name} %major
 
 %bcond_without	blas
 %bcond_without	boost
@@ -18,11 +16,11 @@
 %bcond_without	kwloc
 %bcond_without	libjpeg
 %bcond_without	mpfr
-%bcond_without	mpi
+%bcond_with		mpi
 %bcond_without	muparser
 %bcond_without	netcdf
 %bcond_without	opencl
-%bcond_without	openmp
+%bcond_with		openmp
 %bcond_with		ptscotch
 %bcond_with		suitesparse
 %bcond_without	yaml
@@ -30,13 +28,15 @@
 %bcond_without	zstd
 
 Summary:	A suite of data structures and routines for solution of partial differential equations
-Name:		%name
-Version:	3.18.3
+Name:		petsc
+Version:	3.19.0
 Release:	1
 License:	BSD
 Group:		System/Libraries
 Url:		https://petsc.org/
 Source0:	https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/%{name}-%{version}.tar.gz
+# (fedora)
+Patch0:		petsc-3.15.0-fix_sundials_version.patch
 
 BuildRequires:	cmake
 BuildRequires:	ninja
@@ -59,8 +59,6 @@ BuildRequires:	pkgconfig(python3)
 BuildRequires:	pkgconfig(yaml-0.1)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	python3dist(mpi4py)
-#BuildRequires:	pkgconfig(valgrind)
-#BuildRequires:	ptscotch-openmpi-devel
 #BuildRequires:	libcgns-devel
 #look for static lib only
 BuildRequires:	gomp-devel
@@ -87,6 +85,7 @@ software library.
 Summary:	Shared objects for PETSc
 Group:		System/Libraries
 Provides:	lib%{name} = %{version}-%{release}
+Obsoletes:	%{oldlibname} <= %{EVRD}
 
 %description -n %{libname}
 %{description}
@@ -104,7 +103,7 @@ Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 
 %description -n %{devname}
-Libraries and headers required to develop software with %{oname}.
+Libraries and headers required to develop software with PETSc.
 
 %files -n %{devname}
 %{_includedir}/%{name}*.h
@@ -133,8 +132,8 @@ This package provides Python3 bindings for PETSc, the Portable,
 Extensible Toolkit for Scientific Computation.
 
 %files -n python-%{name}
-%{python3_sitearch}/mpich/%{name}/
-%{python3_sitearch}/mpich/%{name}-%{pymodule_version}-py%{python_version}.egg-info	
+%{py_platsitedir}/mpich/%{name}/
+%{py_platsitedir}/mpich/%{name}-%{pymodule_version}-py%{python_version}.*-info
 %endif	
  
 #--------------------------------------------------------------------
@@ -144,17 +143,20 @@ Extensible Toolkit for Scientific Computation.
 
 %build
 #export PATH=%{_libdir}/openmpi/bin/:$PATH
-#export CC=gcc
-#export CXX=g++
+export CC=gcc
+export CXX=g++
 #export FC=mpifort
 
 #let's do this by hand, the configure script is home made
 %before_configure
 %configure \
-	--CFLAGS="%{optflags} -O3 -fPIC" \
-	--CXXFLAGS="%{optflags} -O3 -fPIC" \
-	--FCFLAGS="$FCFLAGS -O3 -fPIC" \
-	--LDFLAGS="%{ldflags} -fPIC" \
+	CC=$CC \
+	CXX=$CXX \
+	CFLAGS="%{optflags} -O3 -fPIC" \
+	CXXFLAGS="%{optflags} -O3 -fPIC" \
+	FFLAGS="$FFLAGS -O3 -fPIC" \
+	FCFLAGS="$FCFLAGS -O3 -fPIC" \
+	LDFLAGS="%{ldflags} -fPIC" \
 	--CC_LINKER_FLAGS="$LDFLAGS" \\\
 	--FC_LINKER_FLAGS="$LDFLAGS -lgfortran" \\\
 	--prefix=%{_prefix} \
@@ -185,7 +187,8 @@ Extensible Toolkit for Scientific Computation.
 	--with-valgrind=0 \
 	--with-yaml=%{?with_yaml:1}%{?!with_yaml:0} \
 	--with-zlib=%{?with_zlib:1}%{?!with_zlib:0} \
-	--with-zstd=%{?with_zstd:1}%{?!with_zstd:0}
+	--with-zstd=%{?with_zstd:1}%{?!with_zstd:0} \
+	%{nil}
 
 %make_build
 
