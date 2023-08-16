@@ -1,5 +1,6 @@
 %undefine _ld_as_needed
 %global _lto_cflags %{nil}
+%global _disable_ld_no_undefined 1
 
 %define	major		3
 %define libname %mklibname %{name}
@@ -29,7 +30,7 @@
 
 Summary:	A suite of data structures and routines for solution of partial differential equations
 Name:		petsc
-Version:	3.19.0
+Version:	3.19.4
 Release:	1
 License:	BSD
 Group:		System/Libraries
@@ -109,6 +110,7 @@ Libraries and headers required to develop software with PETSc.
 %{_includedir}/%{name}*.h
 %{_includedir}/%{name}*.hpp
 %{_includedir}/%{name}*.mod
+%optional %{_includedir}/mpiuni.mod
 %{_includedir}/%{name}
 %{_libdir}/lib%{name}.so
 %{_libdir}/pkgconfig/*.pc
@@ -206,4 +208,3 @@ popd
 #mkdir -p %{buildroot}/%{fincludedir}
 #mv -f %{buildroot}/%{_includedir}/*.mod %{buildroot}/%{fincludedir}/
 sed -i 's|libdir=${prefix}/lib|libdir=${prefix}/%{_lib}|g' %{buildroot}/%{_libdir}/pkgconfig/PETSc.pc
-
