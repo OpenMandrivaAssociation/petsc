@@ -30,7 +30,7 @@
 
 Summary:	A suite of data structures and routines for solution of partial differential equations
 Name:		petsc
-Version:	3.19.4
+Version:	3.19.6
 Release:	1
 License:	BSD
 Group:		System/Libraries
