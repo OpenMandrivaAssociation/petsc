@@ -7,6 +7,9 @@
 %define devname %mklibname %{name} -d
 %define oldlibname %mklibname %{name} %major
 
+# BLAS lib
+%global blaslib flexiblas
+
 %bcond_without	blas
 %bcond_without	boost
 %bcond_with		cgns
@@ -30,25 +33,25 @@
 
 Summary:	A suite of data structures and routines for solution of partial differential equations
 Name:		petsc
-Version:	3.19.6
+Version:	3.22.2
 Release:	1
 License:	BSD
 Group:		System/Libraries
 Url:		https://petsc.org/
-Source0:	https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/%{name}-%{version}.tar.gz
+#Source0:	https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/%{name}-%{version}.tar.gz
+Source0:	https://gitlab.com/petsc/petsc/-/archive/v%{version}/%{name}-v%{version}.tar.bz2
 # (fedora)
-Patch0:		petsc-3.15.0-fix_sundials_version.patch
+#Patch0:		petsc-3.15.0-fix_sundials_version.patch
 
 BuildRequires:	cmake
 BuildRequires:	ninja
 BuildRequires:	boost-devel
 BuildRequires:	hdf5-devel
-BuildRequires:	pkgconfig(blas)
 BuildRequires:	pkgconfig(eigen3)
 BuildRequires:	pkgconfig(fftw3)
 BuildRequires:	pkgconfig(gmp)
 BuildRequires:	pkgconfig(hwloc)
-BuildRequires:	pkgconfig(lapack)
+BuildRequires:	pkgconfig(%{blaslib})
 BuildRequires:	pkgconfig(libjpeg)
 BuildRequires:	pkgconfig(libzstd)
 BuildRequires:	pkgconfig(mpfr)
@@ -141,7 +144,7 @@ Extensible Toolkit for Scientific Computation.
 #--------------------------------------------------------------------
 
 %prep
-%autosetup -p1
+%autosetup -p1 -n %{name}-v%{version}
 
 %build
 #export PATH=%{_libdir}/openmpi/bin/:$PATH
