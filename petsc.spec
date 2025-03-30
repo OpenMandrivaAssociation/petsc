@@ -1,5 +1,5 @@
 %undefine _ld_as_needed
-%global _lto_cflags %{nil}
+%global _disable_lto 1
 %global _disable_ld_no_undefined 1
 
 %define	major		3
@@ -33,13 +33,14 @@
 
 Summary:	A suite of data structures and routines for solution of partial differential equations
 Name:		petsc
-Version:	3.22.2
+Version:	3.23.0
 Release:	1
 License:	BSD
 Group:		System/Libraries
 Url:		https://petsc.org/
 #Source0:	https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/%{name}-%{version}.tar.gz
 Source0:	https://gitlab.com/petsc/petsc/-/archive/v%{version}/%{name}-v%{version}.tar.bz2
+Source1:	%{name}.rpmlintrc
 # (fedora)
 #Patch0:		petsc-3.15.0-fix_sundials_version.patch
 
